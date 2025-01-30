@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>GitSage</h1>
+    <p>Explore GitHub repositories with ease</p>
+    
+    <form id="repo-form" class="search-form">
+        <input type="text" id="repo-url" placeholder="Enter GitHub repository URL" required>
+        <button type="submit">Explore</button>
+    </form>
+</div>
+
+<div id="result" class="result-container"></div>
+{% endblock %}
