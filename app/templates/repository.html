@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ repo.name }}{% endblock %}
+
+{% block content %}
+<div class="repo-layout">
+    <!-- Sidebar with directory tree -->
+    <div class="sidebar">
+        <div class="repo-stats">
+            <h3>Repository Stats</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-icon">⭐</span>
+                    <span class="stat-value">{{ repo.stargazers_count }}</span>
+                    <span class="stat-label">stars</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">🔄</span>
+                    <span class="stat-value">{{ repo.forks_count }}</span>
+                    <span class="stat-label">forks</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">👀</span>
+                    <span class="stat-value">{{ repo.watchers_count }}</span>
+                    <span class="stat-label">watchers</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">💻</span>
+                    <span class="stat-value">{{ repo.language or 'Unknown' }}</span>
+                    <span class="stat-label">language</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="directory-tree">
+            <h3>📁 Files</h3>
+            <div id="tree-view" class="tree-view"></div>
+        </div>
+    </div>
+
+    <!-- Main content area -->
+    <div class="main-content">
+        <div class="repo-header">
+            <h1>{{ repo.full_name }}</h1>
+            <p class="repo-description">{{ repo.description or 'No description available.' }}</p>
+        </div>
+
+        <!-- File viewer -->
+        <div class="file-viewer">
+            <div class="file-viewer-header">
+                <div class="file-controls">
+                    <input type="text" id="file-search" placeholder="Search files...">
+                    <select id="file-type-filter">
+                        <option value="">All Files</option>
+                        <option value=".py">Python</option>
+                        <option value=".js">JavaScript</option>
+                        <option value=".md">Markdown</option>
+                    </select>
+                </div>
+                <div id="current-file-path"></div>
+            </div>
+            <div id="code-display" class="code-display"></div>
+            <div id="code-explanation" class="code-explanation"></div>
+        </div>
+
+        <!-- AI Chat Interface -->
+        <div class="chat-interface">
+            <h3>Ask about the code</h3>
+            <div id="chat-messages" class="chat-messages"></div>
+            <form class="chat-input-form">
+                <input type="text" id="chat-query" placeholder="Ask about the code...">
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Add marked.js for markdown rendering -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prismjs/1.24.1/prism.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prismjs/1.24.1/themes/prism.min.css">
+<script src="{{ url_for('static', filename='js/repository.js') }}"></script>
+{% endblock %}
