@@ -1,24 +1,33 @@
-from flask import Blueprint, render_template, jsonify, request
+from fastapi import APIRouter, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from pathlib import Path
 import requests
-import base64
 from app.config import Config
+from typing import Callable
 
-repo_bp = Blueprint('repo', __name__)
+router = APIRouter()
+templates = Jinja2Templates(directory=str(Path(__file__).parent.parent / "templates"))
 
-@repo_bp.route('/')
-def index():
-    return render_template('index.html')
+@router.get("/", response_class=HTMLResponse)
+async def index(request: Request):
+    # Add static function to template context
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "static": lambda path: f"/static/{path}"
+        }
+    )
 
-@repo_bp.route('/repo/<owner>/<repo>')
-def repo_overview(owner, repo):
-    # Implement repository overview logic
+@router.get("/repo/{owner}/{repo}")
+async def repo_overview(request: Request, owner: str, repo: str):
     headers = {'Authorization': f'token {Config.GITHUB_TOKEN}'}
     repo_url = f'https://api.github.com/repos/{owner}/{repo}'
     
     repo_info = requests.get(repo_url, headers=headers).json()
-    return render_template('dashboard.html', repo=repo_info)
+    return templates.TemplateResponse("dashboard.html", {"request": request, "repo": repo_info})
 
-@repo_bp.route('/api/files/<owner>/<repo>')
-def get_files(owner, repo):
-    # Implement file listing logic
-    return jsonify({'files': []})
+@router.get("/api/files/{owner}/{repo}")
+async def get_files(owner: str, repo: str):
+    return {"files": []}
