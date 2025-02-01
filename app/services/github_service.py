@@ -1,78 +1,50 @@
 import requests
 import base64
-from flask import current_app
+from ..config import Config
 from urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
 import re
 from collections import defaultdict
 
-def get_repo_info(owner, repo):
-    """
-    Fetch repository information from GitHub API using token
-    """
-    token = current_app.config.get('GITHUB_TOKEN')
-    url = f"https://api.github.com/repos/{owner}/{repo}"
-    headers = {"Authorization": f"token {token}"}
+def get_repo_info(owner: str, repo: str):
+    """Get repository information"""
+    headers = {'Authorization': f'token {Config.GITHUB_TOKEN}'}
+    url = f'https://api.github.com/repos/{owner}/{repo}'
     
-    # Configure retry strategy
-    session = requests.Session()
-    retry_strategy = Retry(
-        total=3,
-        backoff_factor=1,
-        status_forcelist=[429, 500, 502, 503, 504],
-    )
-    adapter = HTTPAdapter(max_retries=retry_strategy)
-    session.mount("https://", adapter)
-    
-    try:
-        response = session.get(url, headers=headers)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            return {"error": f"Failed to fetch repository: {response.status_code}"}, response.status_code
-    except requests.exceptions.RequestException as e:
-        return {"error": f"Network error occurred: {str(e)}"}, 500
+    response = requests.get(url, headers=headers)
+    if response.status_code != 200:
+        return {"error": "Repository not found"}, 404
+    return response.json()
 
-def get_repo_contents(owner, repo, path=""):
-    """
-    Fetch contents of a repository path
-    """
-    token = current_app.config.get('GITHUB_TOKEN')
-    url = f"https://api.github.com/repos/{owner}/{repo}/contents/{path}"
-    headers = {"Authorization": f"token {token}"}
+def get_repo_contents(owner: str, repo: str, path: str = ""):
+    """Get repository contents"""
+    headers = {'Authorization': f'token {Config.GITHUB_TOKEN}'}
+    url = f'https://api.github.com/repos/{owner}/{repo}/contents/{path}'
     
-    try:
-        response = requests.get(url, headers=headers)
-        if response.status_code == 200:
-            return response.json()
+    response = requests.get(url, headers=headers)
+    if response.status_code != 200:
         return []
-    except requests.exceptions.RequestException:
-        return []
+    return response.json()
 
-def read_file_content(owner, repo, file_path):
-    """
-    Read content of a specific file from repository
-    """
-    token = current_app.config.get('GITHUB_TOKEN')
-    url = f"https://api.github.com/repos/{owner}/{repo}/contents/{file_path}"
-    headers = {"Authorization": f"token {token}"}
-
-    try:
-        response = requests.get(url, headers=headers)
-        if response.status_code == 200:
-            file_data = response.json()
-            if file_data.get("encoding") == "base64":
-                content = base64.b64decode(file_data["content"]).decode("utf-8")
-                return content
+def read_file_content(owner: str, repo: str, path: str):
+    """Read file content"""
+    headers = {'Authorization': f'token {Config.GITHUB_TOKEN}'}
+    url = f'https://api.github.com/repos/{owner}/{repo}/contents/{path}'
+    
+    response = requests.get(url, headers=headers)
+    if response.status_code != 200:
         return None
-    except (requests.exceptions.RequestException, UnicodeDecodeError):
-        return None
+    
+    content = response.json()
+    if 'content' in content:
+        import base64
+        return base64.b64decode(content['content']).decode('utf-8')
+    return None
 
 def get_directory_tree(owner, repo):
     """Get complete directory structure of the repository"""
-    token = current_app.config.get('GITHUB_TOKEN')
+    headers = {'Authorization': f'token {Config.GITHUB_TOKEN}'}
     url = f"https://api.github.com/repos/{owner}/{repo}/git/trees/main?recursive=1"
-    headers = {"Authorization": f"token {token}"}
     
     try:
         response = requests.get(url, headers=headers)
@@ -125,9 +97,8 @@ def get_dependencies(owner, repo):
 
 def get_commit_history(owner, repo):
     """Get repository commit history"""
-    token = current_app.config.get('GITHUB_TOKEN')
+    headers = {'Authorization': f'token {Config.GITHUB_TOKEN}'}
     url = f"https://api.github.com/repos/{owner}/{repo}/commits"
-    headers = {"Authorization": f"token {token}"}
     
     try:
         response = requests.get(url, headers=headers)

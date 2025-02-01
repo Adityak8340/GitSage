@@ -1,4 +1,10 @@
-from flask import Blueprint, jsonify, request, render_template
+from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.templating import Jinja2Templates
+from pathlib import Path
+from typing import Optional, Dict, Any
+from pydantic import BaseModel
+
 from ..services.github_service import (
     get_repo_info, get_repo_contents, read_file_content,
     get_directory_tree, analyze_complexity,
@@ -6,83 +12,84 @@ from ..services.github_service import (
 )
 from ..services.ai_service import get_code_explanation, chat_with_repo
 
-bp = Blueprint('repo', __name__, url_prefix='/repo')
+router = APIRouter(prefix="/repo")
+templates = Jinja2Templates(directory=str(Path(__file__).parent.parent / "templates"))
 
-@bp.route('/')
-def index():
-    """Repository index page"""
-    return render_template('index.html')
+class ChatRequest(BaseModel):
+    query: str
+    context: Dict[str, str] = {}
 
-@bp.route('/<owner>/<repo>')
-def get_repository(owner, repo):
-    """Get repository information"""
+class CodeExplanationRequest(BaseModel):
+    code: str
+    path: str
+
+@router.get("/", response_class=HTMLResponse)
+async def index(request: Request):
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "static": lambda path: f"/static/{path}"
+        }
+    )
+
+@router.get("/{owner}/{repo}")
+async def get_repository(request: Request, owner: str, repo: str):
     repo_info = get_repo_info(owner, repo)
     if isinstance(repo_info, tuple):
-        return jsonify(repo_info[0]), repo_info[1]
-    return render_template('repository.html', repo=repo_info)
+        raise HTTPException(status_code=repo_info[1], detail=repo_info[0])
+    return templates.TemplateResponse(
+        "repository.html",
+        {
+            "request": request,
+            "repo": repo_info,
+            "static": lambda path: f"/static/{path}"
+        }
+    )
 
-@bp.route('/<owner>/<repo>/contents/<path:file_path>')
-def get_file_content(owner, repo, file_path):
-    """Get content of a specific file"""
+@router.get("/{owner}/{repo}/contents/{file_path:path}")
+async def get_file_content(owner: str, repo: str, file_path: str):
     content = read_file_content(owner, repo, file_path)
     if content is None:
-        return jsonify({"error": "File not found or unable to read"}), 404
-    return jsonify({"content": content})
+        raise HTTPException(status_code=404, detail="File not found or unable to read")
+    return {"content": content}
 
-@bp.route('/<owner>/<repo>/contents/')
-@bp.route('/<owner>/<repo>/contents/<path:path>')
-def list_contents(owner, repo, path=""):
-    """List repository contents at a specific path"""
-    contents = get_repo_contents(owner, repo, path)
-    return jsonify(contents)
+@router.get("/{owner}/{repo}/contents/{path:path}")
+async def list_contents(owner: str, repo: str, path: str = ""):
+    return get_repo_contents(owner, repo, path)
 
-@bp.route('/<owner>/<repo>/tree')
-def get_tree(owner, repo):
-    """Get repository directory tree"""
-    tree = get_directory_tree(owner, repo)
-    return jsonify(tree)
+@router.get("/{owner}/{repo}/tree")
+async def get_tree(owner: str, repo: str):
+    return get_directory_tree(owner, repo)
 
-@bp.route('/<owner>/<repo>/analyze')
-def analyze_repository(owner, repo):
-    """Analyze repository complexity and dependencies"""
+@router.get("/{owner}/{repo}/analyze")
+async def analyze_repository(owner: str, repo: str):
     complexity = analyze_complexity(owner, repo)
     dependencies = get_dependencies(owner, repo)
-    return jsonify({
+    return {
         "complexity": complexity,
         "dependencies": dependencies
-    })
+    }
 
-@bp.route('/<owner>/<repo>/history')
-def get_history(owner, repo):
-    """Get repository commit history"""
-    history = get_commit_history(owner, repo)
-    return jsonify(history)
+@router.get("/{owner}/{repo}/history")
+async def get_history(owner: str, repo: str):
+    return get_commit_history(owner, repo)
 
-@bp.route('/explain', methods=['POST'])
-def explain_code_route():
-    """Explain code using AI"""
-    data = request.json
-    explanation = get_code_explanation(data['code'], data['path'])
-    return jsonify({"text": explanation})
+@router.post("/explain")
+async def explain_code_route(request: CodeExplanationRequest):
+    explanation = get_code_explanation(request.code, request.path)
+    return {"text": explanation}
 
-@bp.route('/chat', methods=['POST'])
-def chat():
-    """Chat about repository code"""
-    data = request.json
-    query = data.get('query', '')
-    context = data.get('context', {})
-    
+@router.post("/chat")
+async def chat(request: ChatRequest):
     try:
-        # Get file content and path from context
-        file_content = context.get('content', '')
-        file_path = context.get('path', '')
-        
-        # Get response from AI service with context
-        response = chat_with_repo(
-            query=query,
-            code_context=file_content,
-            file_path=file_path
+        response = await chat_with_repo(
+            query=request.query,
+            code_context=request.context.get('content', ''),
+            file_path=request.context.get('path', '')
         )
-        return jsonify({"text": response})
+        if not response:
+            raise HTTPException(status_code=500, detail="No response from AI service")
+        return {"text": response}
     except Exception as e:
-        return jsonify({"error": f"Chat error: {str(e)}"}), 500
+        raise HTTPException(status_code=500, detail=str(e))
