@@ -3,14 +3,19 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<div class="hero">
-    <h1>GitSage</h1>
-    <p>Explore GitHub repositories with ease</p>
-    
-    <form id="repo-form" class="search-form">
-        <input type="text" id="repo-url" placeholder="Enter GitHub repository URL" required>
-        <button type="submit">Explore</button>
-    </form>
+<div class="container">
+    <div class="hero">
+        <h1 class="animate-title">GitSage</h1>
+        <p class="animate-subtitle">Explore GitHub repositories with AI-powered insights</p>
+        
+        <form id="repo-form" class="search-form card">
+            <input type="text" id="repo-url" placeholder="Enter GitHub repository URL" required>
+            <button type="submit">
+                <span>Explore</span>
+                <div class="button-glow"></div>
+            </button>
+        </form>
+    </div>
 </div>
 
 <div id="result" class="result-container"></div>
