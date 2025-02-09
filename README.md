@@ -130,8 +130,8 @@ graph LR
     <br>
     <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&pause=1000&color=58A6FF&center=true&vCenter=true&width=435&lines=Built+with+%E2%9D%A4%EF%B8%8F;Feel+free+to+contribute!" alt="Typing SVG" />
     <p align="center">
-        <img src="https://img.shields.io/github/stars/adityak8340/GitSage?style=social" alt="Stars">
-        <img src="https://img.shields.io/github/forks/adityak8340/GitSage?style=social" alt="Forks">
-        <img src="https://img.shields.io/github/issues/adityak8340/GitSage?style=social" alt="Issues">
+        <img src="https://img.shields.io/github/stars/Adityak8340/GitSage?style=social" alt="Stars">
+        <img src="https://img.shields.io/github/forks/Adityak8340/GitSage?style=social" alt="Forks">
+        <img src="https://img.shields.io/github/issues/Adityak8340/GitSage?style=social" alt="Issues">
     </p>
 </div>
