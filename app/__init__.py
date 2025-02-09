@@ -1,24 +1,38 @@
-from flask import Flask
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from .config import Config
 
-def create_app(config_class=Config):
-    app = Flask(__name__)
-    app.config.from_object(config_class)
+def create_app():
+    app = FastAPI(title="GitSage", description="GitHub Repository Analysis Tool")
     
-    # Initialize extensions
-    # db.init_app(app)  # Uncomment if using database
-    
-    # Register blueprints
-    from .routes import repo_routes
-    app.register_blueprint(repo_routes.bp)
+    # Configure CORS
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
     
     # Register error handlers
-    @app.errorhandler(404)
-    def not_found_error(error):
-        return {'error': 'Not found'}, 404
+    @app.exception_handler(404)
+    async def not_found_handler(request: Request, exc):
+        return JSONResponse(
+            status_code=404,
+            content={"error": "Not found"}
+        )
     
-    @app.errorhandler(500)
-    def internal_error(error):
-        return {'error': 'Internal server error'}, 500
-        
+    @app.exception_handler(500)
+    async def internal_error_handler(request: Request, exc):
+        return JSONResponse(
+            status_code=500,
+            content={"error": "Internal server error"}
+        )
+    
+    # Load config
+    app.state.config = Config
+    
+    # Register routers (will be included in run.py)
+    
     return app

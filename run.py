@@ -11,6 +11,10 @@ app = FastAPI()
 static_dir = Path(__file__).parent / "app" / "static"
 app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
+# Ensure the static directory exists
+if not static_dir.exists():
+    raise FileNotFoundError(f"Static directory not found: {static_dir}")
+
 # Configure templates with context processor
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "app" / "templates"))
 

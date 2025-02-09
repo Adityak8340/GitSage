@@ -37,11 +37,13 @@ function buildTreeHTML(items) {
 }
 
 function setupTree() {
-    // Toggle folder open/close
+    // Toggle folder open/close with animation
     document.querySelectorAll('.folder-name').forEach(el => {
         el.addEventListener('click', (e) => {
             e.stopPropagation();
-            el.parentElement.classList.toggle('open');
+            const folder = el.parentElement;
+            folder.classList.toggle('open');
+            // Trigger slide animation using CSS transition (handled in style.css)
         });
     });
     // Load file content
