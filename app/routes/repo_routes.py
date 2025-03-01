@@ -53,9 +53,33 @@ async def get_repository(request: Request, owner: str, repo: str):
 @router.get("/{owner}/{repo}/contents/{file_path:path}")
 async def get_file_content(owner: str, repo: str, file_path: str):
     content = read_file_content(owner, repo, file_path)
+    
     if content is None:
         raise HTTPException(status_code=404, detail="File not found or unable to read")
+    
+    # Check if it's a binary file (returns a dict with metadata)
+    if isinstance(content, dict) and content.get('is_binary'):
+        return content  # Return metadata for binary files
+    
+    # Return text content
     return {"content": content}
+
+# Add a route to proxy binary files (optional enhancement)
+@router.get("/{owner}/{repo}/binary/{file_path:path}")
+async def get_binary_file(owner: str, repo: str, file_path: str):
+    """Proxy binary file content from GitHub"""
+    content_info = read_file_content(owner, repo, file_path)
+    
+    if content_info is None or not isinstance(content_info, dict):
+        raise HTTPException(status_code=404, detail="File not found")
+    
+    if not content_info.get('download_url'):
+        raise HTTPException(status_code=404, detail="No download URL available for this file")
+    
+    # For security and performance, redirect to the GitHub raw content URL
+    # rather than proxying the binary content through our server
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url=content_info['download_url'])
 
 @router.get("/{owner}/{repo}/contents/{path:path}")
 async def list_contents(owner: str, repo: str, path: str = ""):

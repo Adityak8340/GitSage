@@ -2,6 +2,54 @@
 
 {% block title %}{{ repo.name }} - GitSage{% endblock %}
 
+{% block head %}
+{{ super() }}
+<!-- Add highlight.js for better code syntax highlighting -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.hljs) {
+            console.log('Highlight.js initialized');
+            
+            // Force blue text to yellow in code blocks
+            const fixCodeColors = function() {
+                // Find and fix all blue text in code elements
+                const codeElement = document.getElementById('code-content');
+                if (codeElement) {
+                    const blueElements = codeElement.querySelectorAll('[style*="color: blue"], [style*="color:#0000FF"], [style*="color: #0000FF"]');
+                    
+                    blueElements.forEach(el => {
+                        el.style.color = '#ffcb6b !important';
+                        // Add a class for easier targeting with CSS
+                        el.classList.add('fixed-color');
+                    });
+                    
+                    console.log(`Fixed colors for ${blueElements.length} elements`);
+                }
+            };
+            
+            // Run after file content is loaded
+            window.addEventListener('fileLoaded', function() {
+                // Wait a bit for syntax highlighting to apply
+                setTimeout(fixCodeColors, 200);
+            });
+        }
+    });
+</script>
+<style>
+    /* Inline style overrides as a fallback */
+    .fixed-color, 
+    [style*="color: blue"], 
+    [style*="color:#0000FF"],
+    span[style*="color: #00f"],
+    span[style*="color:#00f"],
+    .string, .python-string {
+        color: #ffcb6b !important;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="repo-layout">
     <div class="sidebar card">

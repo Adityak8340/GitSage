@@ -145,27 +145,92 @@ async function loadFile(path) {
         const response = await fetch(`/repo/${repoOwner}/${repoName}/contents/${path}`);
         const data = await response.json();
         
-        if (data.content) {
-            codeContent.textContent = data.content;
+        // Check if it's a binary file
+        if (data.is_binary) {
+            displayBinaryFile(data, codeContent);
             
-            // Highlight code if hljs is available
-            if (window.hljs) {
-                hljs.highlightElement(codeContent);
-            }
-            
-            // Signal that a new file has been loaded (for chat.js)
+            // Don't pass binary files to chat context
             window.dispatchEvent(new CustomEvent('fileLoaded', { 
                 detail: { 
                     path: path, 
-                    content: data.content 
+                    content: `[Binary file: ${data.name} (${formatFileSize(data.size)})]`,
+                    is_binary: true
                 }
             }));
         } else {
-            codeContent.textContent = 'Unable to load file content';
+            // It's a text file
+            if (data.content) {
+                codeContent.textContent = data.content;
+                
+                // Highlight code if hljs is available
+                if (window.hljs) {
+                    hljs.highlightElement(codeContent);
+                    
+                    // Fix blue text colors after highlighting (for f-strings etc)
+                    setTimeout(() => {
+                        // Target all blue-colored spans and force them yellow
+                        const blueSpans = codeContent.querySelectorAll('span[style*="color: blue"], span[style*="color:#0000FF"], span.hljs-string');
+                        blueSpans.forEach(span => {
+                            span.style.color = '#ffcb6b';
+                        });
+                        console.log(`Fixed colors for ${blueSpans.length} spans in ${path}`);
+                    }, 100);
+                }
+                
+                // Signal that a new file has been loaded
+                window.dispatchEvent(new CustomEvent('fileLoaded', { 
+                    detail: { 
+                        path: path, 
+                        content: data.content,
+                        is_binary: false
+                    }
+                }));
+            } else {
+                codeContent.textContent = 'Unable to load file content';
+            }
         }
     } catch (error) {
         codeContent.textContent = `Error loading file: ${error.message}`;
     }
+}
+
+// Display binary file information
+function displayBinaryFile(fileInfo, container) {
+    const fileType = fileInfo.type;
+    const downloadUrl = fileInfo.download_url;
+    const fileSize = formatFileSize(fileInfo.size);
+    
+    // Completely rewritten HTML structure with minimal whitespace
+    let content = `<div class="binary-file-container">`;
+    
+    // Add preview for supported types
+    if (fileType === 'image') {
+        content += `<div class="image-preview">
+            <img src="${downloadUrl}" alt="${fileInfo.name}" style="max-width: 100%; max-height: 400px;">
+        </div>`;
+    }
+    
+    content += `<div class="binary-file-info">
+        <h3>Binary File</h3>
+        <table class="binary-file-table">
+            <tr><td><strong>Name:</strong></td><td>${fileInfo.name}</td></tr>
+            <tr><td><strong>Type:</strong></td><td>${fileType}</td></tr>
+            <tr><td><strong>Size:</strong></td><td>${fileSize}</td></tr>
+        </table>
+        <a href="${downloadUrl}" target="_blank" class="download-link">View Raw File</a>
+        <small class="file-note">Binary files cannot be displayed directly in the code viewer</small>
+    </div>
+</div>`;
+    
+    container.innerHTML = content;
+}
+
+// Format file size in human-readable format
+function formatFileSize(bytes) {
+    if (bytes < 1024) return bytes + ' bytes';
+    else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    else if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    else return (bytes / (1024 * 1024 * 1024)).toFixed(1) + ' GB';
 }
 
 // Export for chat.js
