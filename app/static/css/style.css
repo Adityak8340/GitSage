@@ -139,6 +139,9 @@ body {
     height: 300px;
     margin-top: 20px;
     border-top: 1px solid #eaeaea;
+    min-height: 300px;
+    max-height: 500px;
+    padding: 0;
 }
 
 .chat-messages {
@@ -151,6 +154,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    padding: 15px;
+    gap: 15px;
 }
 
 .user-message, .ai-message {
@@ -162,6 +167,7 @@ body {
     flex-direction: column;
     gap: 8px;
     margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
 .user-message {
@@ -174,6 +180,9 @@ body {
     padding: 8px 12px;
     border-radius: 18px 18px 0 18px;
     max-width: 80%;
+    background-color: #1f6feb;
+    padding: 10px 15px;
+    margin-left: auto;
 }
 
 .ai-message {
@@ -185,6 +194,9 @@ body {
     padding: 8px 12px;
     border-radius: 18px 18px 18px 0;
     max-width: 80%;
+    background-color: #343541;
+    color: white;
+    padding: 10px 15px;
 }
 
 @keyframes messageSlide {
@@ -201,6 +213,15 @@ body {
 .ai-message.loading:after {
     content: '...';
     animation: loading-dots 1.5s infinite;
+    content: "";
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+    margin-left: 10px;
 }
 
 .ai-message.error {
@@ -212,6 +233,8 @@ body {
     display: flex;
     padding: 10px;
     border-top: 1px solid #eaeaea;
+    padding: 15px;
+    gap: 10px;
 }
 
 .chat-input-form input {
@@ -224,6 +247,10 @@ body {
     border: 1px solid #ddd;
     border-radius: 4px;
     margin-right: 8px;
+    padding: 10px 15px;
+    background: var(--card-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
 }
 
 .chat-input-form button {
@@ -240,10 +267,15 @@ body {
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    padding: 10px 20px;
+    background: var(--primary-gradient);
+    font-weight: bold;
+    transition: transform 0.15s ease;
 }
 
 .chat-input-form button:hover {
     background-color: #0069d9;
+    transform: translateY(-2px);
 }
 
 @keyframes loading-dots {
@@ -430,6 +462,10 @@ body {
     100% { transform: rotate(360deg); }
 }
 
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
 pre {
     white-space: pre-wrap;
     background-color: #f8f8f8;
@@ -440,4 +476,121 @@ pre {
 
 code {
     font-family: monospace;
+}
+
+.ai-message code, .ai-message pre {
+    background: #2d2d2d;
+    border: 1px solid #444;
+    border-radius: 4px;
+}
+
+/* Additional styles for markdown rendering */
+.ai-message pre.code-block {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 12px;
+    margin: 10px 0;
+    overflow-x: auto;
+    font-family: 'Fira Code', Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    max-height: 400px;
+    position: relative;
+}
+
+.ai-message code.inline-code {
+    background: #2d2d2d;
+    color: #e6e6e6;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-family: 'Fira Code', Consolas, monospace;
+    font-size: 90%;
+}
+
+.ai-message h1, .ai-message h2, .ai-message h3 {
+    margin-top: 16px;
+    margin-bottom: 8px;
+    color: #e6e6e6;
+    font-weight: 600;
+}
+
+.ai-message h1 {
+    font-size: 1.5em;
+    border-bottom: 1px solid #444;
+    padding-bottom: 5px;
+}
+
+.ai-message h2 {
+    font-size: 1.3em;
+}
+
+.ai-message h3 {
+    font-size: 1.1em;
+}
+
+.ai-message ul, .ai-message ol {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.ai-message li {
+    margin-bottom: 5px;
+    display: list-item;
+}
+
+.ai-message ul li {
+    list-style-type: disc;
+}
+
+.ai-message ol li {
+    list-style-type: decimal;
+}
+
+.ai-message a {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.ai-message a:hover {
+    text-decoration: none;
+}
+
+/* Language-specific syntax highlighting */
+.language-python .keyword { color: #569cd6; }
+.language-python .string { color: #ce9178; }
+.language-python .comment { color: #6a9955; }
+.language-python .function { color: #dcdcaa; }
+
+.language-javascript .keyword { color: #569cd6; }
+.language-javascript .string { color: #ce9178; }
+.language-javascript .comment { color: #6a9955; }
+.language-javascript .function { color: #dcdcaa; }
+
+/* Fix for nested code blocks in markdown */
+.ai-message pre code {
+    background: transparent;
+    border: none;
+    padding: 0;
+    font-size: inherit;
+}
+
+/* Add a copy button to code blocks */
+.ai-message pre.code-block:hover::after {
+    content: "Copy";
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #333;
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.ai-message pre.code-block:hover::after:hover {
+    opacity: 1;
 }

@@ -31,26 +31,26 @@
                 <pre><code id="code-content" class="hljs">Select a file to view its contents</code></pre>
             </div>
         </div>
+        
+        <!-- Chat interface -->
         <div class="chat-interface">
-            <div class="chat-messages" id="chat-messages"></div>
-            <form class="chat-input-form" id="chat-form">
-                <input type="text" id="chat-input" placeholder="Ask about the code...">
+            <div id="chat-messages" class="chat-messages">
+                <!-- Messages will appear here -->
+            </div>
+            <form id="chat-form" class="chat-input-form">
+                <input type="text" id="chat-input" placeholder="Ask about the repository...">
                 <button type="submit">Send</button>
             </form>
         </div>
     </div>
 </div>
 
+<!-- Load scripts in the correct order -->
 <script src="{{ static('js/repository.js') }}"></script>
 <script src="{{ static('js/chat.js') }}"></script>
 
+<!-- Debug info -->
 <script>
-// Debug information
-console.log('Repository template loaded');
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM content loaded in repository template');
-    console.log('Repo Owner:', '{{ repo.owner.login }}');
-    console.log('Repo Name:', '{{ repo.name }}');
-});
+console.log('Repository template loaded with ID:', '{{ repo.id }}');
 </script>
 {% endblock %}

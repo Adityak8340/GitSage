@@ -94,19 +94,19 @@ def format_repo_context_for_prompt(repo_summary: Dict[str, Any]) -> str:
     context = "Repository Overview:\n"
     
     # Add top-level directories first - these are most informative
-    if repo_summary["top_level_dirs"]:
+    if repo_summary.get("top_level_dirs"):
         context += "\nTop-level Directories:\n"
         for directory in sorted(repo_summary["top_level_dirs"]):
             context += f"- {directory}/\n"
     
     # Add language statistics
-    if repo_summary["languages"]:
+    if repo_summary.get("languages"):
         context += "\nLanguages:\n"
         for lang, count in sorted(repo_summary["languages"].items(), key=lambda x: x[1], reverse=True):
             context += f"- {lang}: {count} files\n"
     
     # Add key files
-    if repo_summary["key_files"]:
+    if repo_summary.get("key_files"):
         context += "\nKey Files:\n"
         for file in repo_summary["key_files"]:
             context += f"- {file}\n"
@@ -126,10 +126,11 @@ def format_repo_context_for_prompt(repo_summary: Dict[str, Any]) -> str:
                 result += format_tree(node.get('children', []), indent + 1, max_depth, current_depth + 1)
         return result
     
-    context += format_tree(repo_summary["tree"])
+    if repo_summary.get("tree"):
+        context += format_tree(repo_summary["tree"])
     
     # Add README summary (first 2000 chars max)
-    if repo_summary["readme"]:
+    if repo_summary.get("readme"):
         context += "\nREADME Summary:\n"
         readme_summary = repo_summary["readme"][:2000]
         if len(repo_summary["readme"]) > 2000:

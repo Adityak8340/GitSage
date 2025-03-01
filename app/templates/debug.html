@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitSage Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .chat-interface { border: 1px solid #ccc; border-radius: 5px; padding: 10px; margin-top: 20px; }
+        .chat-messages { height: 300px; overflow-y: scroll; border: 1px solid #eee; padding: 10px; margin-bottom: 10px; }
+        .chat-input-form { display: flex; }
+        .chat-input-form input { flex-grow: 1; padding: 8px; margin-right: 10px; }
+        .chat-input-form button { padding: 8px 16px; }
+        .user-message { background-color: #e3f2fd; padding: 8px; margin: 5px 0; border-radius: 5px; }
+        .ai-message { background-color: #f1f1f1; padding: 8px; margin: 5px 0; border-radius: 5px; }
+        .error { color: red; }
+        pre { background-color: #f8f8f8; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>GitSage Debug Page</h1>
+    
+    <div class="debug-info">
+        <h2>Debug Information</h2>
+        <pre id="debug-output">Waiting for debug info...</pre>
+        <button id="run-tests">Run Tests</button>
+    </div>
+    
+    <div class="chat-interface">
+        <h2>Chat Test</h2>
+        <div id="chat-messages" class="chat-messages">
+            <div class="ai-message">Hello! I'm GitSage. How can I help you today?</div>
+        </div>
+        <form id="chat-form" class="chat-input-form">
+            <input type="text" id="chat-input" placeholder="Type a message...">
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+    <script>
+        // Debug helper
+        const debugOutput = document.getElementById('debug-output');
+        function logDebug(message) {
+            const timestamp = new Date().toISOString().substr(11, 8);
+            debugOutput.textContent += `\n[${timestamp}] ${message}`;
+            console.log(message);
+        }
+
+        // Extract repo info from URL
+        const pathParts = window.location.pathname.split('/');
+        let repoOwner = '';
+        let repoName = '';
+        
+        if (pathParts.length >= 4 && pathParts[1] === 'repo') {
+            repoOwner = pathParts[2];
+            repoName = pathParts[3];
+            logDebug(`Repository: ${repoOwner}/${repoName}`);
+        } else {
+            logDebug('Not on a repository page. Using test values.');
+            repoOwner = 'test-owner';
+            repoName = 'test-repo';
+        }
+
+        // Chat form handling
+        document.getElementById('chat-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const input = document.getElementById('chat-input');
+            const query = input.value.trim();
+            
+            if (!query) {
+                logDebug('Empty query, not sending');
+                return;
+            }
+            
+            logDebug(`Sending query: ${query}`);
+            input.value = '';
+            
+            const chatMessages = document.getElementById('chat-messages');
+            const userMessage = document.createElement('div');
+            userMessage.className = 'user-message';
+            userMessage.textContent = `You: ${query}`;
+            chatMessages.appendChild(userMessage);
+            
+            const aiMessage = document.createElement('div');
+            aiMessage.className = 'ai-message';
+            aiMessage.textContent = 'Thinking...';
+            chatMessages.appendChild(aiMessage);
+            
+            try {
+                logDebug('Sending POST request to /repo/chat');
+                const response = await fetch('/repo/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        context: {},
+                        repo_owner: repoOwner,
+                        repo_name: repoName
+                    })
+                });
+                
+                logDebug(`Response status: ${response.status}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error ${response.status}`);
+                }
+                
+                const data = await response.json();
+                logDebug('Response parsed successfully');
+                
+                aiMessage.textContent = `GitSage: ${data.text}`;
+            } catch (error) {
+                logDebug(`Error: ${error.message}`);
+                aiMessage.className = 'ai-message error';
+                aiMessage.textContent = `Error: ${error.message}`;
+            }
+            
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
+
+        // Run basic tests
+        document.getElementById('run-tests').addEventListener('click', async function() {
+            logDebug('Running tests...');
+            
+            // Test 1: Check if fetch is available
+            logDebug('Test 1: Checking if fetch is available');
+            if (typeof fetch === 'function') {
+                logDebug('✓ fetch is available');
+            } else {
+                logDebug('✗ fetch is not available');
+            }
+            
+            // Test 2: Try a simple GET request
+            logDebug('Test 2: Testing GET request to server');
+            try {
+                const response = await fetch('/');
+                logDebug(`✓ GET request successful, status: ${response.status}`);
+            } catch (error) {
+                logDebug(`✗ GET request failed: ${error.message}`);
+            }
+            
+            // Test 3: Check form elements
+            logDebug('Test 3: Checking form elements');
+            const chatForm = document.getElementById('chat-form');
+            const chatInput = document.getElementById('chat-input');
+            const chatMessages = document.getElementById('chat-messages');
+            
+            logDebug(`chat-form exists: ${Boolean(chatForm)}`);
+            logDebug(`chat-input exists: ${Boolean(chatInput)}`);
+            logDebug(`chat-messages exists: ${Boolean(chatMessages)}`);
+            
+            logDebug('Tests complete');
+        });
+        
+        logDebug('Debug page loaded');
+    </script>
+</body>
+</html>
