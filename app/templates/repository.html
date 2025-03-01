@@ -42,4 +42,15 @@
 </div>
 
 <script src="{{ static('js/repository.js') }}"></script>
+<script src="{{ static('js/chat.js') }}"></script>
+
+<script>
+// Debug information
+console.log('Repository template loaded');
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM content loaded in repository template');
+    console.log('Repo Owner:', '{{ repo.owner.login }}');
+    console.log('Repo Name:', '{{ repo.name }}');
+});
+</script>
 {% endblock %}
