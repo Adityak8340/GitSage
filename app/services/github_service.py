@@ -27,19 +27,104 @@ def get_repo_contents(owner: str, repo: str, path: str = ""):
     return response.json()
 
 def read_file_content(owner: str, repo: str, path: str):
-    """Read file content"""
+    """
+    Read file content from GitHub
+    Returns:
+    - For text files: the decoded text content
+    - For binary files: a dict with metadata including size and download_url
+    - None if file not found
+    """
     headers = {'Authorization': f'token {Config.GITHUB_TOKEN}'}
     url = f'https://api.github.com/repos/{owner}/{repo}/contents/{path}'
     
-    response = requests.get(url, headers=headers)
-    if response.status_code != 200:
+    try:
+        response = requests.get(url, headers=headers)
+        if response.status_code != 200:
+            return None
+        
+        content = response.json()
+        
+        # Check if it's a binary file based on common extensions
+        if is_likely_binary_file(path):
+            # For binary files, return metadata instead of content
+            return {
+                "is_binary": True,
+                "size": content.get('size', 0),
+                "name": content.get('name', ''),
+                "download_url": content.get('download_url', ''),
+                "type": get_file_type(path),
+                "encoding": content.get('encoding', '')
+            }
+        
+        # For text files, try to decode the content
+        try:
+            if 'content' in content:
+                return base64.b64decode(content['content']).decode('utf-8')
+        except UnicodeDecodeError:
+            # If we can't decode as UTF-8, it's probably a binary file
+            return {
+                "is_binary": True,
+                "size": content.get('size', 0),
+                "name": content.get('name', ''),
+                "download_url": content.get('download_url', ''),
+                "type": "binary",
+                "encoding": content.get('encoding', '')
+            }
+        
         return None
+    except Exception as e:
+        print(f"Error reading file content: {e}")
+        return None
+
+def is_likely_binary_file(path: str) -> bool:
+    """
+    Check if a file is likely binary based on its extension
+    """
+    binary_extensions = [
+        # Images
+        '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.ico', '.svg', '.webp',
+        # Audio
+        '.mp3', '.wav', '.ogg', '.m4a',
+        # Video
+        '.mp4', '.avi', '.mov', '.mkv', '.webm',
+        # Documents
+        '.pdf', '.doc', '.docx', '.ppt', '.pptx', '.xls', '.xlsx',
+        # Archives
+        '.zip', '.rar', '.tar', '.gz', '.7z',
+        # Compiled
+        '.exe', '.dll', '.so', '.class', '.pyc',
+        # Other binary
+        '.bin', '.dat', '.iso', '.img',
+        # ML models and data
+        '.pkl', '.model', '.onnx', '.pb'
+    ]
     
-    content = response.json()
-    if 'content' in content:
-        import base64
-        return base64.b64decode(content['content']).decode('utf-8')
-    return None
+    return any(path.lower().endswith(ext) for ext in binary_extensions)
+
+def get_file_type(path: str) -> str:
+    """
+    Get the general file type based on extension
+    """
+    ext = path.lower().split('.')[-1] if '.' in path else ''
+    
+    # Images
+    if ext in ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp']:
+        return 'image'
+    # Audio
+    elif ext in ['mp3', 'wav', 'ogg', 'm4a']:
+        return 'audio'
+    # Video
+    elif ext in ['mp4', 'avi', 'mov', 'mkv', 'webm']:
+        return 'video'
+    # Documents
+    elif ext in ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx']:
+        return 'document'
+    # Archives
+    elif ext in ['zip', 'rar', 'tar', 'gz', '7z']:
+        return 'archive'
+    # Other binary files
+    else:
+        return 'binary'
 
 def get_directory_tree(owner, repo):
     """Get complete directory structure of the repository"""

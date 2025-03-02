@@ -134,6 +134,160 @@ body {
     border: 1px solid var(--border-color);
     border-radius: 4px;
     margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    height: 300px;
+    margin-top: 20px;
+    border-top: 1px solid #eaeaea;
+    min-height: 300px;
+    max-height: 500px;
+    padding: 0;
+}
+
+.chat-messages {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 1rem;
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+    gap: 15px;
+}
+
+.user-message, .ai-message {
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 8px;
+    animation: messageSlide 0.3s ease-out;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+    margin-bottom: 10px;
+}
+
+.user-message {
+    background: var(--primary-gradient);
+    margin-left: 20%;
+    border-radius: 12px 12px 0 12px;
+    align-self: flex-end;
+    background-color: #007bff;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 18px 18px 0 18px;
+    max-width: 80%;
+    background-color: #1f6feb;
+    padding: 10px 15px;
+    margin-left: auto;
+}
+
+.ai-message {
+    background: var(--card-gradient);
+    margin-right: 20%;
+    border-radius: 12px 12px 12px 0;
+    align-self: flex-start;
+    background-color: #f1f1f1;
+    padding: 8px 12px;
+    border-radius: 18px 18px 18px 0;
+    max-width: 80%;
+    background-color: #343541;
+    color: white;
+    padding: 10px 15px;
+}
+
+@keyframes messageSlide {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ai-message.loading:after {
+    content: '...';
+    animation: loading-dots 1.5s infinite;
+    content: "";
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+    margin-left: 10px;
+}
+
+.ai-message.error {
+    background-color: #ffe6e6;
+    color: #d63031;
+}
+
+.chat-input-form {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #eaeaea;
+    padding: 15px;
+    gap: 10px;
+}
+
+.chat-input-form input {
+    padding: 0.5rem;
+    width: 80%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-right: 8px;
+    padding: 10px 15px;
+    background: var(--card-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+.chat-input-form button {
+    padding: 0.5rem;
+    border: none;
+    background-color: #0078d4;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 0.5rem;
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 10px 20px;
+    background: var(--primary-gradient);
+    font-weight: bold;
+    transition: transform 0.15s ease;
+}
+
+.chat-input-form button:hover {
+    background-color: #0069d9;
+    transform: translateY(-2px);
+}
+
+@keyframes loading-dots {
+    0%, 20% { content: '.'; }
+    40% { content: '..'; }
+    60%, 100% { content: '...'; }
+}
+
+.loading {
+    display: inline-block;
+    position: relative;
+    color: #666;
 }
 
 /* Folders and files in repository tree */
@@ -260,23 +414,6 @@ body {
     margin-top: 0;
 }
 
-.chat-input-form input {
-    padding: 0.5rem;
-    width: 80%;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.chat-input-form button {
-    padding: 0.5rem;
-    border: none;
-    background-color: #0078d4;
-    color: #fff;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-left: 0.5rem;
-}
-
 /* Animations */
 @keyframes rotate {
     from { transform: rotate(0deg); }
@@ -286,43 +423,6 @@ body {
 @keyframes glow {
     from { text-shadow: 0 0 10px rgba(88, 166, 255, 0.5); }
     to { text-shadow: 0 0 20px rgba(88, 166, 255, 0.8); }
-}
-
-/* Chat interface enhancements */
-.chat-messages {
-    max-height: 300px;
-    overflow-y: auto;
-    padding: 1rem;
-}
-
-.user-message, .ai-message {
-    margin: 1rem 0;
-    padding: 1rem;
-    border-radius: 8px;
-    animation: messageSlide 0.3s ease-out;
-}
-
-.user-message {
-    background: var(--primary-gradient);
-    margin-left: 20%;
-    border-radius: 12px 12px 0 12px;
-}
-
-.ai-message {
-    background: var(--card-gradient);
-    margin-right: 20%;
-    border-radius: 12px 12px 12px 0;
-}
-
-@keyframes messageSlide {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }
 
 /* Card styling */
@@ -360,4 +460,462 @@ body {
 @keyframes loading {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+pre {
+    white-space: pre-wrap;
+    background-color: #f8f8f8;
+    padding: 8px;
+    border-radius: 4px;
+    overflow-x: auto;
+}
+
+code {
+    font-family: monospace;
+}
+
+.ai-message code, .ai-message pre {
+    background: #2d2d2d;
+    border: 1px solid #444;
+    border-radius: 4px;
+}
+
+/* Additional styles for markdown rendering */
+.ai-message pre.code-block {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 12px;
+    margin: 10px 0;
+    overflow-x: auto;
+    font-family: 'Fira Code', Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    max-height: 400px;
+    position: relative;
+}
+
+.ai-message code.inline-code {
+    background: #2d2d2d;
+    color: #e6e6e6;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-family: 'Fira Code', Consolas, monospace;
+    font-size: 90%;
+}
+
+.ai-message h1, .ai-message h2, .ai-message h3 {
+    margin-top: 16px;
+    margin-bottom: 8px;
+    color: #e6e6e6;
+    font-weight: 600;
+}
+
+.ai-message h1 {
+    font-size: 1.5em;
+    border-bottom: 1px solid #444;
+    padding-bottom: 5px;
+}
+
+.ai-message h2 {
+    font-size: 1.3em;
+}
+
+.ai-message h3 {
+    font-size: 1.1em;
+}
+
+.ai-message ul, .ai-message ol {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.ai-message li {
+    margin-bottom: 5px;
+    display: list-item;
+}
+
+.ai-message ul li {
+    list-style-type: disc;
+}
+
+.ai-message ol li {
+    list-style-type: decimal;
+}
+
+.ai-message a {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.ai-message a:hover {
+    text-decoration: none;
+}
+
+/* Language-specific syntax highlighting */
+.language-python .keyword { color: #569cd6; }
+.language-python .string { color: #ce9178; }
+.language-python .comment { color: #6a9955; }
+.language-python .function { color: #dcdcaa; }
+
+.language-javascript .keyword { color: #569cd6; }
+.language-javascript .string { color: #ce9178; }
+.language-javascript .comment { color: #6a9955; }
+.language-javascript .function { color: #dcdcaa; }
+
+/* Fix for nested code blocks in markdown */
+.ai-message pre code {
+    background: transparent;
+    border: none;
+    padding: 0;
+    font-size: inherit;
+}
+
+/* Add a copy button to code blocks */
+.ai-message pre.code-block:hover::after {
+    content: "Copy";
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #333;
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.ai-message pre.code-block:hover::after:hover {
+    opacity: 1;
+}
+
+/* Binary file display styles - improved spacing */
+.binary-file-info {
+    padding: 15px;
+    text-align: center;
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.binary-file-info h3 {
+    margin: 0;
+    font-size: 1.4em;
+    color: var(--primary-color);
+}
+
+.binary-file-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 5px 0;
+}
+
+.binary-file-info p {
+    margin: 0;
+    line-height: 1.3;
+}
+
+.binary-file-info .note {
+    font-style: italic;
+    color: #999;
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+
+.image-preview {
+    margin: 10px auto;
+    padding: 10px;
+    background: #222;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    text-align: center;
+    width: 100%;
+    max-width: 600px;
+}
+
+.download-link {
+    display: inline-block;
+    margin: 5px 0;
+    padding: 6px 14px;
+    background: var(--primary-gradient);
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: transform 0.2s ease;
+}
+
+.download-link:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--glow-shadow);
+}
+
+/* Improved syntax highlighting for dark themes */
+.language-python .keyword, 
+.language-javascript .keyword { 
+    color: #569cd6; /* Light blue for keywords */
+}
+
+.language-python .string, 
+.language-javascript .string { 
+    color: #ce9178; /* Light orange for strings */
+}
+
+.language-python .comment, 
+.language-javascript .comment { 
+    color: #6a9955; /* Light green for comments */
+}
+
+.language-python .function, 
+.language-javascript .function { 
+    color: #dcdcaa; /* Light yellow for functions */
+}
+
+/* Override specific syntax highlighting colors for better visibility */
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in,
+.hljs-name,
+.hljs-tag {
+    color: #ffcb6b !important; /* Changed from blue to yellow */
+}
+
+.hljs-attr,
+.hljs-string,
+.hljs-title {
+    color: #a8e08f; /* Light green for attributes and strings */
+}
+
+.hljs-variable,
+.hljs-template-variable,
+.hljs-class .hljs-title {
+    color: #d8d8d8; /* Light grey for variables */
+}
+
+.hljs-comment,
+.hljs-quote,
+.hljs-deletion {
+    color: #7c7c7c; /* Grey for comments */
+}
+
+.hljs-meta {
+    color: #ff9b5e; /* Orange for meta */
+}
+
+.hljs-literal,
+.hljs-number,
+.hljs-doctag {
+    color: #d19a66; /* Light orange for numbers/literals */
+}
+
+/* Fix for ai-message content - ensure proper spacing */
+.ai-message h1, 
+.ai-message h2, 
+.ai-message h3, 
+.ai-message p {
+    margin: 8px 0;
+}
+
+/* Override all syntax highlighting keywords in blue */
+[class*="keyword"], 
+[class*="reserved"], 
+[class*="selector"], 
+code .blue {
+    color: #ffcb6b !important; /* Override blue with yellow */
+}
+
+.language-python .keyword, 
+.language-javascript .keyword { 
+    color: #ffcb6b !important; /* Override to yellow */
+}
+
+/* New binary file display styles */
+.binary-file-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    background-color: var(--bg-color);
+    border-radius: 6px;
+}
+
+.binary-file-info {
+    text-align: center;
+    padding: 10px 0;
+    width: 100%;
+    max-width: 500px;
+}
+
+.binary-file-info h3 {
+    margin: 0 0 15px 0;
+    font-size: 1.5em;
+    color: var(--primary-color);
+}
+
+.binary-file-table {
+    margin: 0 auto 15px auto;
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 350px;
+}
+
+.binary-file-table td {
+    padding: 5px 10px;
+    text-align: left;
+}
+
+.binary-file-table tr td:first-child {
+    width: 80px;
+    color: #aaa;
+}
+
+.binary-file-table tr td:last-child {
+    color: #fff;
+}
+
+.download-link {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 10px 0;
+    background: var(--primary-gradient);
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: transform 0.2s ease;
+}
+
+.download-link:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--glow-shadow);
+}
+
+.image-preview {
+    margin: 0 auto 20px auto;
+    padding: 10px;
+    background: #222;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    text-align: center;
+    width: 100%;
+    max-width: 600px;
+}
+
+.file-note {
+    display: block;
+    color: #888;
+    font-style: italic;
+    margin-top: 10px;
+}
+
+/* Enhanced syntax highlighting overrides */
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in,
+.hljs-name,
+.hljs-tag,
+.hljs-attr-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-params {
+    color: #ffcb6b !important; /* Force yellow for all keywords and selectors */
+}
+
+/* Force blue to be yellow */
+.token.keyword,
+.keyword,
+.language-javascript .token.keyword, 
+.language-python .token.keyword,
+code span[style*="color: blue"],
+code span[style*="color: rgb(0, 0, 255)"],
+code span[style*="color: #0000FF"],
+.hljs span[style*="color: blue"] {
+    color: #ffcb6b !important; /* Force yellow for all blue text */
+}
+
+/* Make all primary code colors more visible */
+.hljs-string { color: #ff8b8b !important; } /* Brighter red for strings */
+.hljs-comment { color: #a8a8a8 !important; } /* Lighter gray for comments */
+.hljs-number, .hljs-literal { color: #ff9d4f !important; } /* Brighter orange for numbers */
+.hljs-variable { color: #eeffbb !important; } /* Light yellow-green for variables */
+.hljs-function, .hljs-title.function__ { color: #82aaff !important; } /* Bright blue for functions */
+
+/* Stronger syntax highlighting overrides for f-strings and blue text */
+.hljs .hljs-string,
+.hljs .hljs-meta .hljs-string,
+code .hljs-string,
+code[class*="language-"] .token.string,
+pre[class*="language-"] .token.string,
+.language-python .string,
+.language-python .token.string,
+.language-python span[style*="color: blue"],
+.language-python span.string,
+.language-python .f-string,
+.language-python .formatted-string,
+.language-python .format,
+.code-content span[style*="color: blue"],
+.code-content .token.string,
+span[style*="color:blue"],
+span[style*="color: blue"],
+span[style*="color:#0000FF"],
+span[style*="color: #0000FF"],
+span.hljs-string,
+.hljs-formula,
+.hljs-string,
+.hljs-attr {
+    color: #ffcb6b !important; /* Force yellow for all string-related content */
+}
+
+/* Target specifically f-strings in Python */
+.language-python .f-string,
+.language-python span.f-string,
+.language-python span.formatted-string,
+.language-python span[class*="f-string"],
+.language-python span[class*="formatted"],
+code .f-string,
+pre .f-string,
+.hljs .f-string,
+.hljs-template-variable,
+.hljs-subst,
+.hljs-variable.language_ {
+    color: #ffcb6b !important;
+}
+
+/* Override inline style attributes with !important */
+[style*="color: blue"],
+[style*="color:blue"],
+[style*="color: #0000FF"],
+[style*="color:#0000FF"] {
+    color: #ffcb6b !important;
+}
+
+/* Additional targeting for code tags */
+code .string, code .token.string, pre .string, pre .token.string {
+    color: #ffcb6b !important;
+}
+
+/* Add overrides for specific classes used by highlightjs */
+.hljs-template-string,
+.hljs-string.quoted,
+.hljs-string.template,
+.hljs-meta-string,
+.hljs-doctag {
+    color: #ffcb6b !important;
+}
+
+/* Create specific rule for f-strings in #code-content */
+#code-content span[style*="color: blue"],
+#code-content .string,
+#code-content .f-string {
+    color: #ffcb6b !important;
 }

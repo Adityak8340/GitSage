@@ -2,6 +2,54 @@
 
 {% block title %}{{ repo.name }} - GitSage{% endblock %}
 
+{% block head %}
+{{ super() }}
+<!-- Add highlight.js for better code syntax highlighting -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.hljs) {
+            console.log('Highlight.js initialized');
+            
+            // Force blue text to yellow in code blocks
+            const fixCodeColors = function() {
+                // Find and fix all blue text in code elements
+                const codeElement = document.getElementById('code-content');
+                if (codeElement) {
+                    const blueElements = codeElement.querySelectorAll('[style*="color: blue"], [style*="color:#0000FF"], [style*="color: #0000FF"]');
+                    
+                    blueElements.forEach(el => {
+                        el.style.color = '#ffcb6b !important';
+                        // Add a class for easier targeting with CSS
+                        el.classList.add('fixed-color');
+                    });
+                    
+                    console.log(`Fixed colors for ${blueElements.length} elements`);
+                }
+            };
+            
+            // Run after file content is loaded
+            window.addEventListener('fileLoaded', function() {
+                // Wait a bit for syntax highlighting to apply
+                setTimeout(fixCodeColors, 200);
+            });
+        }
+    });
+</script>
+<style>
+    /* Inline style overrides as a fallback */
+    .fixed-color, 
+    [style*="color: blue"], 
+    [style*="color:#0000FF"],
+    span[style*="color: #00f"],
+    span[style*="color:#00f"],
+    .string, .python-string {
+        color: #ffcb6b !important;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="repo-layout">
     <div class="sidebar card">
@@ -31,15 +79,26 @@
                 <pre><code id="code-content" class="hljs">Select a file to view its contents</code></pre>
             </div>
         </div>
+        
+        <!-- Chat interface -->
         <div class="chat-interface">
-            <div class="chat-messages" id="chat-messages"></div>
-            <form class="chat-input-form" id="chat-form">
-                <input type="text" id="chat-input" placeholder="Ask about the code...">
+            <div id="chat-messages" class="chat-messages">
+                <!-- Messages will appear here -->
+            </div>
+            <form id="chat-form" class="chat-input-form">
+                <input type="text" id="chat-input" placeholder="Ask about the repository...">
                 <button type="submit">Send</button>
             </form>
         </div>
     </div>
 </div>
 
+<!-- Load scripts in the correct order -->
 <script src="{{ static('js/repository.js') }}"></script>
+<script src="{{ static('js/chat.js') }}"></script>
+
+<!-- Debug info -->
+<script>
+console.log('Repository template loaded with ID:', '{{ repo.id }}');
+</script>
 {% endblock %}
