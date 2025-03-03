@@ -112,11 +112,6 @@ graph LR
 
 ---
 
-<div align="center" style="margin: 30px 0;">
-  <h3 style="color: #58a6ff;">📜 License</h3>
-  <p>MIT © 2024 Aditya Kumar Tiwari</p>
-</div>
-
 <div align="center">
   <div class="tech-stack" style="display: flex; justify-content: center; gap: 20px; margin: 20px 0;">
     <img src="https://www.vectorlogo.zone/logos/python/python-icon.svg" width="50" height="50"/>
