@@ -171,3 +171,5 @@ cython_debug/
 .pypirc
 Experiment.ipynb
 qdrant_storage/
+direct_start.py
+.env.example
